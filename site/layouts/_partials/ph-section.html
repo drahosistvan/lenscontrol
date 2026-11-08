@@ -1,0 +1,10 @@
+{{- /* One placeholder control section: small header bar, then rows with a
+     right-aligned label and a left-aligned value, 24 units apart.
+     Args: x (column left), y (header top), labels, values (bar widths). */ -}}
+{{- $x := .x }}{{ $y := .y }}{{ $values := .values -}}
+<rect class="ph-bar" x="{{ $x }}" y="{{ $y }}" width="54" height="6" rx="3"/>
+{{- range $i, $lw := .labels }}
+{{- $ry := add $y 20 (mul $i 24) }}
+<rect class="ph-bar" x="{{ sub (add $x 88) $lw }}" y="{{ $ry }}" width="{{ $lw }}" height="8" rx="4"/>
+<rect class="ph-bar ph-strong" x="{{ add $x 98 }}" y="{{ sub $ry 3 }}" width="{{ index $values $i }}" height="14" rx="4"/>
+{{- end }}

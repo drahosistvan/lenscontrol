@@ -1,0 +1,45 @@
+baseURL = "https://lenscontrol.app/"
+locale = "en"
+title = "LensControl"
+disableKinds = ["taxonomy", "term", "section", "rss"]
+enableRobotsTXT = true
+
+[params]
+tagline = "Control your mirrorless or DSLR camera from the desktop while it is your webcam."
+description = "LensControl is a small menu-bar app that changes your camera's exposure, white balance, focus and mic over USB while the camera feeds your video call through a capture card."
+github = "https://github.com/drahosistvan/lenscontrol"
+
+# Paths under static/, e.g. "images/icon.png". Leave empty to show the
+# placeholder slot.
+icon = ""
+
+[params.screenshots]
+# Paths under static/, e.g. "images/popover.png" (330 pt wide, @2x = 660 px)
+# and "images/window.png" (680 pt wide, @2x = 1360 px). Empty = placeholder.
+popover = ""
+window = ""
+
+# Platform cards, shown in this order. For an available platform, set `url`
+# and `label` for its button: swap the URL for the Mac App Store page or a
+# GitHub Releases asset once there is one. `comingSoon = true` hides the
+# button and shows a "Coming soon" badge instead.
+[[params.platforms]]
+name = "macOS"
+comingSoon = false
+note = "Menu-bar app with a floating window. macOS 14 Sonoma or later."
+label = "Build from source"
+url = "https://github.com/drahosistvan/lenscontrol/tree/main/apps/macos#build--install"
+
+[[params.platforms]]
+name = "Windows"
+comingSoon = true
+note = "Notification-area app with the same panel and presets."
+label = ""
+url = ""
+
+[[params.platforms]]
+name = "Linux"
+comingSoon = true
+note = "Tray app on libgphoto2 with the same panel and presets."
+label = ""
+url = ""

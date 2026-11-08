@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="{{ site.Language.Locale | default "en" }}">
+<head>
+  {{- partial "head.html" (dict "title" (printf "%s · Camera control while it is your webcam" site.Title) "page" .) }}
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="wordmark" href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a>
+      <nav class="topnav" aria-label="Sections">
+        <a href="#how">How it works</a>
+        <a href="#download">Download</a>
+        <a href="{{ site.Params.github }}">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      {{- with site.Params.icon }}
+      <img class="app-icon" src="{{ . | relURL }}" width="112" height="112" alt="{{ site.Title }} app icon">
+      {{- else }}
+      <div class="app-icon app-icon-slot" aria-hidden="true"><span>App icon</span></div>
+      {{- end }}
+      <h1>{{ site.Title }}</h1>
+      <p class="tagline">{{ site.Params.tagline }}</p>
+      <p class="lede">A small menu-bar app for the Mac. Your camera's HDMI feed goes to the call through a capture card; LensControl changes exposure, white balance, focus and mic over USB, so you never have to reach for the camera mid-call.</p>
+      <div class="actions">
+        <a class="button button-primary" href="#download">Get it for macOS</a>
+        <a class="button" href="{{ site.Params.github }}">View on GitHub</a>
+      </div>
+      <p class="fineprint">Free and open source. macOS 14 or later. Built and tested with the Nikon Z5 II.</p>
+    </section>
+
+    <section class="screens wrap" aria-label="Screenshots">
+      <figure class="shot shot-window">
+        {{- with site.Params.screenshots.window }}
+        <img src="{{ . | relURL }}" width="680" height="480" alt="LensControl as a floating window next to a video call">
+        {{- else }}
+        {{ partial "placeholder-window.html" . }}
+        {{- end }}
+        <figcaption>Floating window, 680 pt, with Keep on top</figcaption>
+      </figure>
+      <figure class="shot shot-popover">
+        {{- with site.Params.screenshots.popover }}
+        <img src="{{ . | relURL }}" width="330" height="660" alt="LensControl menu-bar popover">
+        {{- else }}
+        {{ partial "placeholder-popover.html" . }}
+        {{- end }}
+        <figcaption>Menu-bar popover, 330 pt</figcaption>
+      </figure>
+    </section>
+
+    <section id="how" class="section wrap">
+      <h2>How it works</h2>
+      <p class="section-intro">Two cables, two jobs. The capture card carries the picture. USB carries the settings.</p>
+
+      <div class="flow" role="img" aria-label="The camera sends video over HDMI to a capture card, which your call app sees as a webcam. The same camera connects over USB to LensControl, which changes its settings.">
+        <div class="node node-camera">Camera<small>in video mode</small></div>
+        <div class="lanes">
+          <div class="lane">
+            <span class="wire"><span>HDMI</span></span>
+            <div class="node">Capture card<small>e.g. Elgato Cam Link 4K</small></div>
+            <span class="wire"><span>webcam</span></span>
+            <div class="node">Your call or stream<small>FaceTime, Zoom, OBS…</small></div>
+          </div>
+          <div class="lane">
+            <span class="wire"><span>USB</span></span>
+            <div class="node node-accent">LensControl<small>changes the settings</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="features">
+        <div class="feature">
+          <h3>Exposure</h3>
+          <p>Shutter from 1/30 to 1/8000, aperture, ISO from 100 to 204800, auto ISO with a maximum, and EV from −3 to +3 in ⅓ steps.</p>
+        </div>
+        <div class="feature">
+          <h3>White balance</h3>
+          <p>The camera's movie white-balance modes, and colour temperature from 2500 to 10000 K in 10 K steps.</p>
+        </div>
+        <div class="feature">
+          <h3>Focus and mic</h3>
+          <p>AF-S, AF-F or manual focus, a one-shot “Autofocus now”, and mic sensitivity: Auto, High or Medium.</p>
+        </div>
+        <div class="feature">
+          <h3>Movie settings, not stills</h3>
+          <p>The camera keeps separate photo and video settings. LensControl edits the video ones, which is what the HDMI feed shows.</p>
+        </div>
+        <div class="feature">
+          <h3>Named presets</h3>
+          <p>Save every setting as “Daylight desk” or “Evening lamp” and apply it with ⌘1 to ⌘9. If the camera refuses a value, LensControl tells you which and applies the rest.</p>
+        </div>
+        <div class="feature">
+          <h3>Popover or window</h3>
+          <p>A menu-bar popover for a five-second change, or a floating window with Keep on top to park beside the call. Both stay in sync.</p>
+        </div>
+        <div class="feature">
+          <h3>Live preview</h3>
+          <p>A 640×360 USB live view at up to 20 fps to judge exposure and colour, right in the panel.</p>
+        </div>
+        <div class="feature">
+          <h3>Quiet</h3>
+          <p>Talks to the camera through libgphoto2, in-process. No camera-brand software, reads and writes in about 2 ms, and the camera is released whenever the panel is closed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="download" class="section wrap">
+      <h2>Get LensControl</h2>
+      <div class="platforms">
+        {{- range site.Params.platforms }}
+        <article class="platform{{ if .comingSoon }} is-soon{{ end }}">
+          <div class="platform-head">
+            <h3>{{ .name }}</h3>
+            {{- if .comingSoon }}<span class="badge">Coming soon</span>{{ end }}
+          </div>
+          <p>{{ .note }}</p>
+          {{- if and (not .comingSoon) .url }}
+          <a class="button button-primary" href="{{ .url }}">{{ .label | default (printf "Download for %s" .name) }}</a>
+          {{- else }}
+          <a class="button button-quiet" href="{{ site.Params.github }}">Follow on GitHub</a>
+          {{- end }}
+        </article>
+        {{- end }}
+      </div>
+
+      <div class="requirements">
+        <h3>Requirements</h3>
+        <ul>
+          <li>macOS 14 Sonoma or later, with libgphoto2 from Homebrew: <code>brew install libgphoto2</code></li>
+          <li>Camera in video mode, USB set to PTP (the default), connected directly or through a hub</li>
+          <li>An HDMI capture card for the picture; USB only carries control</li>
+          <li>Built and tested with the Nikon Z5 II. Other cameras are untested.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <p>{{ site.Title }} is open source and built on <a href="http://gphoto.org">libgphoto2</a>.</p>
+      <p><a href="{{ site.Params.github }}">{{ strings.TrimPrefix "https://" site.Params.github }}</a></p>
+      <p class="muted">Not affiliated with Nikon. Product names are trademarks of their owners.</p>
+    </div>
+  </footer>
+</body>
+</html>
