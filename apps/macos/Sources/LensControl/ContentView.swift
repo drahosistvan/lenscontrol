@@ -345,8 +345,9 @@ struct ContentView: View {
     private var footer: some View {
         HStack(spacing: 10) {
             TimelineView(.periodic(from: .now, by: 1)) { context in
-                Text(updatedText(now: context.date))
-                    .foregroundStyle(.secondary)
+                let status = footerStatus(now: context.date)
+                Text(status.text)
+                    .foregroundStyle(status.warning ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
             }
             Spacer()
             if !isWindow {
@@ -367,16 +368,20 @@ struct ContentView: View {
         .font(.system(size: 11))
     }
 
-    private func updatedText(now: Date) -> String {
+    /// The panel polls every 2 s, so a fresh timestamp says nothing; only silence
+    /// from the camera is worth showing. Nothing under 30 s, "No update for …"
+    /// after that, in a warning colour once a minute has passed (a stuck USB
+    /// session or a hang looks exactly like this).
+    private func footerStatus(now: Date) -> (text: String, warning: Bool) {
         switch model.connection {
-        case .unknown: return "Reading camera…"
-        case .noCamera: return "Not connected"
+        case .unknown: return ("Reading camera…", false)
+        case .noCamera: return ("Not connected", false)
         case .connected:
-            guard let last = model.lastRefresh else { return "" }
+            guard let last = model.lastRefresh else { return ("", false) }
             let seconds = max(0, Int(now.timeIntervalSince(last)))
-            if seconds < 2 { return "Updated just now" }
-            if seconds < 60 { return "Updated \(seconds) s ago" }
-            return "Updated \(seconds / 60) min ago"
+            if seconds < 30 { return ("", false) }
+            if seconds < 60 { return ("No update for \(seconds) s", false) }
+            return ("No update for \(seconds / 60) min", true)
         }
     }
 
