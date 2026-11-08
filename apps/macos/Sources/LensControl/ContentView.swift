@@ -131,6 +131,14 @@ struct ContentView: View {
                         .help(model.exposureModeTip)
                 }
                 Button {
+                    model.autofocus()
+                } label: {
+                    Image(systemName: "scope")
+                }
+                .buttonStyle(.borderless)
+                .help("Autofocus now (one AF cycle)")
+                .accessibilityLabel("Autofocus now")
+                Button {
                     livePreview.toggle()
                 } label: {
                     Image(systemName: livePreview ? "eye" : "eye.slash")
@@ -319,12 +327,6 @@ struct ContentView: View {
                         ("Manual Focus (selection)", "Manual"),
                     ]) { model.select("liveviewaffocus", choice: $0) }
                 }
-            }
-            FormRow(label: "") {
-                Button("Autofocus Now") { model.autofocus() }
-                    .modifier(GlassButton())
-                    .controlSize(.small)
-                    .help("Run one autofocus cycle")
             }
             if let entry = model["microphone"] {
                 FormRow(label: "Mic") {
