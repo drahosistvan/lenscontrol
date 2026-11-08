@@ -13,11 +13,14 @@ struct ContentView: View {
     @Environment(\.openWindow) private var openWindow
     @AppStorage("keepWindowOnTop") private var keepOnTop = false
     @AppStorage("livePreview") private var livePreview = true
+    /// The MenuBarExtra's own window, for closing it and for keeping its frame in
+    /// step with the content (it grows by itself but never shrinks back).
+    @State private var popoverWindow: NSWindow?
 
     private var isWindow: Bool { presentation == .window }
     private var width: CGFloat { isWindow ? 680 : 330 }
     private var inset: CGFloat { isWindow ? 20 : 14 }
-    private var columnWidth: CGFloat { (width - 2 * inset - 24) / 2 }
+    private var columnWidth: CGFloat { (width - 2 * inset - 20) / 2 }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -36,6 +39,10 @@ struct ContentView: View {
         .frame(width: width)
         .background(shortcuts)
         .background(isWindow ? WindowConfigurator(keepOnTop: keepOnTop) : nil)
+        .background(isWindow ? nil : HostWindowReader(window: $popoverWindow))
+        .onGeometryChange(for: CGSize.self) { $0.size } action: { size in
+            if !isWindow { fitPopover(to: size) }
+        }
         .toolbar {
             if isWindow {
                 ToolbarItem(placement: .primaryAction) {
@@ -69,6 +76,25 @@ struct ContentView: View {
         }
     }
 
+    /// Resize the popover's window to the content, keeping its top edge under the
+    /// menu bar. SwiftUI grows the MenuBarExtra window when content gets taller but
+    /// leaves it as is when content gets shorter, which showed up as an empty band
+    /// above the panel after hiding the preview.
+    private func fitPopover(to size: CGSize) {
+        guard let window = popoverWindow, size.height > 0 else { return }
+        let target = window.frameRect(forContentRect: NSRect(origin: .zero, size: size))
+        let frame = window.frame
+        guard abs(frame.height - target.height) > 0.5 || abs(frame.width - target.width) > 0.5 else { return }
+        window.setFrame(NSRect(x: frame.minX, y: frame.maxY - target.height,
+                               width: target.width, height: target.height),
+                        display: true)
+    }
+
+    private func openAsWindow() {
+        openWindow(id: LensControlApp.windowID)
+        popoverWindow?.close()
+    }
+
     // MARK: - Header
 
     private var header: some View {
@@ -99,9 +125,9 @@ struct ContentView: View {
                 if let mode = model.exposureMode {
                     Text(mode)
                         .font(.system(size: 11, weight: .semibold))
-                        .padding(.horizontal, 5)
-                        .frame(minWidth: 20, minHeight: 18)
-                        .overlay(RoundedRectangle(cornerRadius: 4).strokeBorder(.secondary, lineWidth: 1))
+                        .padding(.horizontal, 7)
+                        .frame(minWidth: 24, minHeight: 20)
+                        .modifier(GlassCapsule())
                         .help(model.exposureModeTip)
                 }
                 Button {
@@ -155,26 +181,30 @@ struct ContentView: View {
         case .connected:
             VStack(alignment: .leading, spacing: 12) {
                 if isWindow {
-                    HStack(alignment: .top, spacing: 24) {
-                        VStack(alignment: .leading, spacing: Metrics.sectionSpacing) {
-                            exposure
-                            whiteBalance
+                    GlassGroup {
+                        HStack(alignment: .top, spacing: 20) {
+                            VStack(alignment: .leading, spacing: Metrics.sectionSpacing) {
+                                exposure
+                                whiteBalance
+                            }
+                            .frame(width: columnWidth)
+                            VStack(alignment: .leading, spacing: Metrics.sectionSpacing) {
+                                if livePreview { PreviewView(width: columnWidth) }
+                                focusAndAudio
+                                PresetsListSection()
+                            }
+                            .frame(width: columnWidth)
                         }
-                        .frame(width: columnWidth)
-                        VStack(alignment: .leading, spacing: Metrics.sectionSpacing) {
-                            if livePreview { PreviewView(width: columnWidth) }
-                            focusAndAudio
-                            PresetsListSection()
-                        }
-                        .frame(width: columnWidth)
                     }
                 } else {
-                    VStack(alignment: .leading, spacing: Metrics.sectionSpacing) {
-                        if livePreview { PreviewView(width: width - 2 * inset) }
-                        exposure
-                        whiteBalance
-                        focusAndAudio
-                        PresetsSection()
+                    GlassGroup {
+                        VStack(alignment: .leading, spacing: Metrics.sectionSpacing) {
+                            if livePreview { PreviewView(width: width - 2 * inset) }
+                            exposure
+                            whiteBalance
+                            focusAndAudio
+                            PresetsSection()
+                        }
                     }
                 }
                 if let error = model.errorMessage {
@@ -212,7 +242,7 @@ struct ContentView: View {
     // MARK: - Sections
 
     private var exposure: some View {
-        FormSection(title: "Exposure") {
+        FormSection(title: "Exposure", symbol: "sun.max") {
             if let entry = model["movieshutterspeed"] {
                 FormRow(label: "Shutter") {
                     ChoicePopup(entry: entry, readOnlyTip: model.shutterReadOnlyTip) { model.select("movieshutterspeed", choice: $0) }
@@ -260,7 +290,7 @@ struct ContentView: View {
     }
 
     private var whiteBalance: some View {
-        FormSection(title: "White balance") {
+        FormSection(title: "White balance", symbol: "camera.filters") {
             if let entry = model["d23a"] {
                 FormRow(label: "Mode") {
                     ChoicePopup(entry: entry, names: CameraModel.movieWhiteBalanceNames) { model.select("d23a", choice: $0) }
@@ -280,7 +310,7 @@ struct ContentView: View {
     }
 
     private var focusAndAudio: some View {
-        FormSection(title: "Focus & audio") {
+        FormSection(title: "Focus & audio", symbol: "scope") {
             if let entry = model["liveviewaffocus"] {
                 FormRow(label: "AF mode") {
                     SegmentedChoice(entry: entry, options: [
@@ -292,6 +322,7 @@ struct ContentView: View {
             }
             FormRow(label: "") {
                 Button("Autofocus Now") { model.autofocus() }
+                    .modifier(GlassButton())
                     .controlSize(.small)
                     .help("Run one autofocus cycle")
             }
@@ -317,7 +348,7 @@ struct ContentView: View {
             }
             Spacer()
             if !isWindow {
-                Button("Open as Window") { openWindow(id: LensControlApp.windowID) }
+                Button("Open as Window") { openAsWindow() }
                     .keyboardShortcut("o")
                     .help("Open as Window (⌘O)")
             }
@@ -384,8 +415,10 @@ struct PreviewView: View {
             }
         }
         .frame(width: width, height: (width * 9 / 16).rounded())
-        .background(.black, in: RoundedRectangle(cornerRadius: 6))
-        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .background(.black, in: RoundedRectangle(cornerRadius: Metrics.cardRadius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: Metrics.cardRadius, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: Metrics.cardRadius, style: .continuous)
+            .strokeBorder(.white.opacity(0.12), lineWidth: 0.5))
     }
 }
 
@@ -403,6 +436,23 @@ struct FrameLayerView: NSViewRepresentable {
 
     func updateNSView(_ view: NSView, context: Context) {
         view.layer?.contents = image
+    }
+}
+
+/// Hands the hosting NSWindow back to SwiftUI once the view is in a window.
+struct HostWindowReader: NSViewRepresentable {
+    @Binding var window: NSWindow?
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async { window = view.window }
+        return view
+    }
+
+    func updateNSView(_ view: NSView, context: Context) {
+        if let host = view.window, host !== window {
+            DispatchQueue.main.async { window = host }
+        }
     }
 }
 

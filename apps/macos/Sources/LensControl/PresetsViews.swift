@@ -30,7 +30,7 @@ struct PresetsSection: View {
     @State private var edit: PresetEdit?
 
     var body: some View {
-        FormSection(title: "Presets") {
+        FormSection(title: "Presets", symbol: "sparkles") {
             if let edit {
                 PresetNameEditor(edit: edit, compact: true) { self.edit = nil }
             } else {
@@ -101,7 +101,7 @@ struct PresetsListSection: View {
         let active = model.activePreset
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
-                SectionHeader(title: "Presets")
+                SectionHeader(title: "Presets", symbol: "sparkles")
                 Spacer()
                 Text(active.map { "Matches “\($0.name)”" } ?? "Custom")
                     .font(.system(size: 11))
@@ -111,6 +111,10 @@ struct PresetsListSection: View {
             list(active: active)
             buttons
         }
+        .padding(.horizontal, Metrics.cardPadding)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .modifier(CardBackground())
         .sheet(item: Binding(
             get: { edit.map(SheetItem.init) },
             set: { edit = $0?.edit }

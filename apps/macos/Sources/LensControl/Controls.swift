@@ -2,39 +2,109 @@ import SwiftUI
 
 // Building blocks for the panel, following the LensControl design's component notes:
 // 84 pt right-aligned label column, 10 pt gutter, rows ≥ 24 pt and 6 pt apart,
-// 16 pt between sections, pop-ups capped at ~170 pt.
+// pop-ups capped at ~170 pt. Each section sits in its own rounded card: Liquid
+// Glass on macOS 26 and later, a quiet tinted fill before that.
 
 enum Metrics {
     static let labelWidth: CGFloat = 84
     static let gutter: CGFloat = 10
     static let rowSpacing: CGFloat = 6
-    static let sectionSpacing: CGFloat = 16
+    static let sectionSpacing: CGFloat = 10
     static let popupMaxWidth: CGFloat = 170
+    static let cardRadius: CGFloat = 14
+    static let cardPadding: CGFloat = 12
 }
 
-/// "White balance" — 12.5 pt semibold small caps, secondary.
+/// "☀︎ Exposure" — a symbol in the accent colour and a 12 pt semibold title.
 struct SectionHeader: View {
     let title: String
+    var symbol: String?
 
     var body: some View {
-        Text(title)
-            .font(.system(size: 12.5, weight: .semibold).smallCaps())
-            .tracking(0.5)
-            .foregroundStyle(.secondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.bottom, 2)
+        HStack(spacing: 6) {
+            if let symbol {
+                Image(systemName: symbol)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 16)
+            }
+            Text(title)
+                .font(.system(size: 12, weight: .semibold))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.bottom, 2)
     }
 }
 
-/// A section: header plus rows.
+/// A section: header plus rows, on a glass card.
 struct FormSection<Content: View>: View {
     let title: String
+    var symbol: String?
     @ViewBuilder let content: Content
+
+    init(title: String, symbol: String? = nil, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.symbol = symbol
+        self.content = content()
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Metrics.rowSpacing) {
-            SectionHeader(title: title)
+            SectionHeader(title: title, symbol: symbol)
             content
+        }
+        .padding(.horizontal, Metrics.cardPadding)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .modifier(CardBackground())
+    }
+}
+
+// MARK: - Liquid Glass (macOS 26+) with material fallbacks
+
+/// Groups glass cards so neighbouring ones blend and sample the backdrop once.
+struct GlassGroup<Content: View>: View {
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        if #available(macOS 26, *) {
+            GlassEffectContainer(spacing: Metrics.sectionSpacing) { content }
+        } else {
+            content
+        }
+    }
+}
+
+/// A section card.
+struct CardBackground: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(macOS 26, *) {
+            content.glassEffect(.regular, in: .rect(cornerRadius: Metrics.cardRadius))
+        } else {
+            content.background(.quaternary.opacity(0.4),
+                               in: RoundedRectangle(cornerRadius: Metrics.cardRadius, style: .continuous))
+        }
+    }
+}
+
+/// A small pill (mode badge, chips).
+struct GlassCapsule: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(macOS 26, *) {
+            content.glassEffect(.regular, in: .capsule)
+        } else {
+            content.background(.quaternary.opacity(0.5), in: Capsule())
+        }
+    }
+}
+
+/// Glass button where available, bordered before that.
+struct GlassButton: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(macOS 26, *) {
+            content.buttonStyle(.glass)
+        } else {
+            content.buttonStyle(.bordered)
         }
     }
 }
@@ -180,6 +250,7 @@ struct EVSlider: View {
         }
         .frame(maxWidth: Metrics.popupMaxWidth + 42)
         .focusable()
+        .focusEffectDisabled()   // the knob's own ring shows focus; no system outline around the row
         .focused($focused)
         .onKeyPress(.leftArrow) { nudge(-1) }
         .onKeyPress(.downArrow) { nudge(-1) }
