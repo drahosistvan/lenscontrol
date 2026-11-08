@@ -1,12 +1,14 @@
 #!/usr/bin/env swift
-// Renders the LensControl app icon from the Claude Design spec (option 1l) at every
-// .iconset size with CoreGraphics, so each size is drawn as vector rather than
-// downsampled. Usage:  swift Tools/MakeIcon.swift <output.iconset>
+// Renders the LensControl app icon from the design canvas (icon direction 2,
+// "lens + HUD sliders") at every .iconset size with CoreGraphics, so each size is
+// drawn as vector rather than downsampled. Usage:  swift Tools/MakeIcon.swift <output.iconset>
 //
 // Spec: macOS squircle (824/1024 of the canvas) in pale aluminium; dark barrel
-// with a brushed conic ring; black inner ring; six-blade disk; hexagonal opening
-// with a blue-black glass gradient; one soft highlight. At 32 px and below the
-// gradients and highlight drop out so the ring-and-hexagon still reads.
+// with a brushed conic ring; black inner ring; blue-black glass; one soft
+// highlight. Over the lower third of the lens sits a dark control strip with two
+// pill sliders, blue (exposure) and amber (white balance), each with a white
+// knob: the app's own panel as the "this controls the camera" cue. At 32 px and
+// below the gradients, highlight and knobs drop out so lens + two bars still read.
 
 import AppKit
 
@@ -54,17 +56,17 @@ func fillWedge(_ ctx: CGContext, center: CGPoint, radius: CGFloat, cssFrom: CGFl
     ctx.fillPath()
 }
 
-func hexagon(in rect: CGRect) -> CGPath {
-    // CSS polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%), y measured from the top.
-    let p = CGMutablePath()
-    func pt(_ fx: CGFloat, _ fy: CGFloat) -> CGPoint {
-        CGPoint(x: rect.minX + rect.width * fx, y: rect.maxY - rect.height * fy)
-    }
-    p.move(to: pt(0.5, 0))
-    p.addLine(to: pt(1, 0.25)); p.addLine(to: pt(1, 0.75)); p.addLine(to: pt(0.5, 1))
-    p.addLine(to: pt(0, 0.75)); p.addLine(to: pt(0, 0.25))
-    p.closeSubpath()
-    return p
+/// A rect given CSS-style, as fractions of `parent` measured from its top-left.
+func cssRect(in parent: CGRect, left: CGFloat, top: CGFloat, width: CGFloat, height: CGFloat) -> CGRect {
+    CGRect(x: parent.minX + parent.width * left,
+           y: parent.maxY - parent.height * (top + height),
+           width: parent.width * width,
+           height: parent.height * height)
+}
+
+func pill(_ rect: CGRect) -> CGPath {
+    let r = rect.height / 2
+    return CGPath(roundedRect: rect, cornerWidth: r, cornerHeight: r, transform: nil)
 }
 
 func drawIcon(_ ctx: CGContext, px: Int) {
@@ -90,9 +92,12 @@ func drawIcon(_ ctx: CGContext, px: Int) {
     ctx.saveGState()
     ctx.addPath(squirclePath)
     ctx.clip()
-    ctx.drawLinearGradient(gradient([(rgb(0xf7f7f5), 0), (rgb(0xd4d4cf), 1)]),
-                           start: CGPoint(x: 0, y: squircle.maxY), end: CGPoint(x: 0, y: squircle.minY), options: [])
-    if !simple {
+    if simple {
+        ctx.setFillColor(rgb(0xe6e6e2))
+        ctx.fill(squircle)
+    } else {
+        ctx.drawLinearGradient(gradient([(rgb(0xf7f7f5), 0), (rgb(0xd4d4cf), 1)]),
+                               start: CGPoint(x: 0, y: squircle.maxY), end: CGPoint(x: 0, y: squircle.minY), options: [])
         // inset 0 2px 0 rgba(255,255,255,.85): a bright line along the top edge
         ctx.setFillColor(rgb(0xffffff, 0.85))
         ctx.fill(CGRect(x: squircle.minX, y: squircle.maxY - 2 * unit, width: squircle.width, height: 2 * unit))
@@ -104,8 +109,8 @@ func drawIcon(_ ctx: CGContext, px: Int) {
     ctx.strokePath()
     ctx.restoreGState()
 
-    // Barrel: circle inset 13 % of the squircle, brushed conic ring.
-    let barrel = squircle.insetBy(dx: squircle.width * 0.13, dy: squircle.height * 0.13)
+    // Barrel: circle inset 12 % of the squircle, brushed conic ring.
+    let barrel = squircle.insetBy(dx: squircle.width * 0.12, dy: squircle.height * 0.12)
     let center = CGPoint(x: barrel.midX, y: barrel.midY)
     let barrelRadius = barrel.width / 2
     if simple {
@@ -131,64 +136,93 @@ func drawIcon(_ ctx: CGContext, px: Int) {
         ctx.restoreGState()
     }
 
-    // Inner ring: inset 8 % of the barrel, near-black.
-    let inner = barrel.insetBy(dx: barrel.width * 0.08, dy: barrel.height * 0.08)
-    ctx.setFillColor(rgb(0x0c0d0f))
-    ctx.fillEllipse(in: inner)
-    if !simple {
+    // Glass. Simple: one blue disk inset 14 % of the barrel. Full: near-black
+    // inner ring inset 8 %, then the glass inset a further 7 % with a radial
+    // blue-black gradient from the upper left and a soft highlight.
+    if simple {
+        let glass = barrel.insetBy(dx: barrel.width * 0.14, dy: barrel.height * 0.14)
+        ctx.setFillColor(rgb(0x1a2c46))
+        ctx.fillEllipse(in: glass)
+    } else {
+        let inner = barrel.insetBy(dx: barrel.width * 0.08, dy: barrel.height * 0.08)
+        ctx.setFillColor(rgb(0x0c0d0f))
+        ctx.fillEllipse(in: inner)
         ctx.setStrokeColor(rgb(0xffffff, 0.08))
         ctx.setLineWidth(1.5 * unit)
         ctx.strokeEllipse(in: inner.insetBy(dx: 0.75 * unit, dy: 0.75 * unit))
-    }
 
-    // Blade disk: inset 6 % of the inner ring, six flat wedges from 12°.
-    let disk = inner.insetBy(dx: inner.width * 0.06, dy: inner.height * 0.06)
-    let diskCenter = CGPoint(x: disk.midX, y: disk.midY)
-    let diskRadius = disk.width / 2
-    ctx.saveGState()
-    ctx.addEllipse(in: disk)
-    ctx.clip()
-    if simple {
-        ctx.setFillColor(rgb(0x27292c))
-        ctx.fill(disk)
-    } else {
-        let blades = [rgb(0x2e3034), rgb(0x222427), rgb(0x323438), rgb(0x1f2124), rgb(0x2f3135), rgb(0x232528)]
-        for (i, color) in blades.enumerated() {
-            let from = 12 + CGFloat(i) * 60
-            fillWedge(ctx, center: diskCenter, radius: diskRadius + 1, cssFrom: from, cssTo: from + 60.5, color: color)
-        }
-    }
-
-    // Hexagonal opening: inset 31 % of the disk, glass gradient from the upper left.
-    let opening = disk.insetBy(dx: disk.width * 0.31, dy: disk.height * 0.31)
-    let hex = hexagon(in: opening)
-    ctx.saveGState()
-    ctx.addPath(hex)
-    ctx.clip()
-    if simple {
-        ctx.setFillColor(rgb(0x1a2c46))
-        ctx.fill(opening)
-    } else {
-        let focus = CGPoint(x: opening.minX + opening.width * 0.38, y: opening.maxY - opening.height * 0.34)
-        let farthest = max(hypot(opening.maxX - focus.x, focus.y - opening.minY),
-                           hypot(focus.x - opening.minX, opening.maxY - focus.y))
+        let glass = inner.insetBy(dx: inner.width * 0.07, dy: inner.height * 0.07)
+        ctx.saveGState()
+        ctx.addEllipse(in: glass)
+        ctx.clip()
+        let focus = CGPoint(x: glass.minX + glass.width * 0.38, y: glass.maxY - glass.height * 0.34)
+        let farthest = max(hypot(glass.maxX - focus.x, focus.y - glass.minY),
+                           hypot(focus.x - glass.minX, glass.maxY - focus.y))
         ctx.drawRadialGradient(gradient([(rgb(0x4a6f9e), 0), (rgb(0x101b2c), 0.55), (rgb(0x04070b), 1)]),
                                startCenter: focus, startRadius: 0, endCenter: focus, endRadius: farthest, options: [])
-    }
-    ctx.restoreGState()
-
-    // Soft glass highlight over the disk: ellipse 60 % × 45 % at (32 %, 24 %).
-    if !simple {
-        ctx.saveGState()
-        let hx = disk.minX + disk.width * 0.32, hy = disk.maxY - disk.height * 0.24
-        let rx = disk.width * 0.60, ry = disk.height * 0.45
+        // Soft highlight: ellipse 60 % × 45 % at (32 %, 24 %).
+        let hx = glass.minX + glass.width * 0.32, hy = glass.maxY - glass.height * 0.24
+        let rx = glass.width * 0.60, ry = glass.height * 0.45
         ctx.translateBy(x: hx, y: hy)
         ctx.scaleBy(x: 1, y: ry / rx)
         ctx.drawRadialGradient(gradient([(rgb(0xffffff, 0.26), 0), (rgb(0xffffff, 0), 0.7)]),
                                startCenter: .zero, startRadius: 0, endCenter: .zero, endRadius: rx, options: [])
         ctx.restoreGState()
     }
-    ctx.restoreGState()   // disk clip
+
+    // Control strip over the lower third: left/right 14 %, bottom 15 %, height 31 % of the squircle.
+    let strip = cssRect(in: squircle, left: 0.14, top: 1 - 0.15 - 0.31, width: 0.72, height: 0.31)
+    let stripRadius = squircle.width * 14 / 206
+    let stripPath = CGPath(roundedRect: strip, cornerWidth: stripRadius, cornerHeight: stripRadius, transform: nil)
+    if simple {
+        ctx.addPath(stripPath)
+        ctx.setFillColor(rgb(0x16181c))
+        ctx.fillPath()
+        // Two solid bars: blue full-ish width, amber shorter.
+        ctx.setFillColor(rgb(0x0a84ff))
+        ctx.addPath(pill(cssRect(in: strip, left: 0.12, top: 0.24, width: 0.76, height: 0.16)))
+        ctx.fillPath()
+        ctx.setFillColor(rgb(0xffb340))
+        ctx.addPath(pill(cssRect(in: strip, left: 0.12, top: 0.60, width: 0.48, height: 0.16)))
+        ctx.fillPath()
+    } else {
+        ctx.saveGState()
+        ctx.setShadow(offset: CGSize(width: 0, height: -6 * unit), blur: 14 * unit, color: rgb(0x000000, 0.35))
+        ctx.addPath(stripPath)
+        ctx.setFillColor(rgb(0x16181c, 0.8))
+        ctx.fillPath()
+        ctx.restoreGState()
+        // inset 0 0 0 1px rgba(255,255,255,.14)
+        ctx.saveGState()
+        ctx.addPath(stripPath)
+        ctx.clip()
+        ctx.addPath(stripPath)
+        ctx.setStrokeColor(rgb(0xffffff, 0.14))
+        ctx.setLineWidth(2 * unit)
+        ctx.strokePath()
+        ctx.restoreGState()
+
+        // Sliders: track left/right 12 % of the strip, 11 % of its height tall;
+        // fill to `value`, white knob 19 % of the track width in diameter.
+        func slider(top: CGFloat, value: CGFloat, fill: CGColor) {
+            let track = cssRect(in: strip, left: 0.12, top: top, width: 0.76, height: 0.11)
+            ctx.setFillColor(rgb(0xffffff, 0.22))
+            ctx.addPath(pill(track))
+            ctx.fillPath()
+            ctx.setFillColor(fill)
+            ctx.addPath(pill(CGRect(x: track.minX, y: track.minY, width: track.width * value, height: track.height)))
+            ctx.fillPath()
+            let d = track.width * 0.19
+            let knob = CGRect(x: track.minX + track.width * value - d / 2, y: track.midY - d / 2, width: d, height: d)
+            ctx.saveGState()
+            ctx.setShadow(offset: CGSize(width: 0, height: -1 * unit), blur: 3 * unit, color: rgb(0x000000, 0.4))
+            ctx.setFillColor(rgb(0xffffff))
+            ctx.fillEllipse(in: knob)
+            ctx.restoreGState()
+        }
+        slider(top: 0.27, value: 0.64, fill: rgb(0x0a84ff))
+        slider(top: 0.62, value: 0.36, fill: rgb(0xffb340))
+    }
 }
 
 func render(px: Int) -> Data {
