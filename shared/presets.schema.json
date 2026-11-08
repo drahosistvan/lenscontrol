@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lenscontrol.app/schemas/presets.json",
+  "title": "LensControl presets",
+  "description": "Named snapshots of the camera's writable settings. Written by every LensControl app; a file saved on one platform applies on another.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "name", "values"],
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Stable identity; renames keep it."
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "values": {
+        "type": "object",
+        "description": "gphoto2 config key -> value as the panel shows it (RADIO choice text, RANGE number as text, or raw PTP code for unnamed keys such as d23a).",
+        "propertyNames": {
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

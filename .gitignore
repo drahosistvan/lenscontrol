@@ -1,4 +1,9 @@
-.build/
-build/
-.swiftpm/
 .DS_Store
+# SwiftPM (apps/macos)
+**/.build/
+**/.swiftpm/
+apps/macos/build/
+# Hugo (site)
+site/public/
+site/resources/_gen/
+site/.hugo_build.lock
