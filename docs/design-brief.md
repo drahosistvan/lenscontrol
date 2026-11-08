@@ -1,12 +1,12 @@
-# Design brief — LensBar (macOS)
+# Design brief — LensControl (macOS)
 
 Paste this into Claude Design.
 
 ---
 
-Design a small native macOS utility called **LensBar**. It remote-controls a Nikon mirrorless camera (Z5 II) over USB while the camera is being used as a webcam through an HDMI capture card. The user is on a video call or streaming and wants to tweak exposure and colour *without touching the camera or leaving the call*. The app is a thin wrapper around the open-source `gphoto2` tool; it must feel instant, quiet and native — a Mac utility, not a camera-brand app.
+Design a small native macOS utility called **LensControl**. It remote-controls a Nikon mirrorless camera (Z5 II) over USB while the camera is being used as a webcam through an HDMI capture card. The user is on a video call or streaming and wants to tweak exposure and colour *without touching the camera or leaving the call*. The app is a thin wrapper around the open-source `gphoto2` tool; it must feel instant, quiet and native — a Mac utility, not a camera-brand app.
 
-The name is *lens* + *menu bar*: it lives in the menu bar and turns the settings you'd otherwise reach for on the lens and body. Use "LensBar" as one word, capital L and B, in the window title, About text and app icon; never "Lens Bar" or "Lensbar".
+The name says what it does: it controls, from the menu bar, the settings you'd otherwise reach for on the lens and body. Use "LensControl" as one word, capital L and C, in the window title, About text and app icon; never "Lens Control" or "Lenscontrol".
 
 ## Two presentations of the same content
 
@@ -65,7 +65,7 @@ Both share one state and update live; changing a value in one reflects in the ot
 
 1. Menu-bar popover: connected state, with Auto ISO on and Colour-temperature WB (so all optional rows are visible).
 2. Same popover: "No camera" state and "write rejected" banner.
-3. Floating window layout titled "LensBar", including the presets area and "keep on top" control.
+3. Floating window layout titled "LensControl", including the presets area and "keep on top" control.
 4. "Save preset as…" interaction.
-5. Menu-bar glyph and app icon for LensBar.
+5. Menu-bar glyph and app icon for LensControl.
 6. Component notes: spacing, type scale, how disabled/read-only differs from normal, dark-mode variants.

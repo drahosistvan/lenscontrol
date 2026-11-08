@@ -4,17 +4,17 @@
 set -eu
 cd "$(dirname "$0")"
 
-swift build -c release --product LensBar
+swift build -c release --product LensControl
 
-APP=build/LensBar.app
+APP=build/LensControl.app
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp .build/release/LensBar "$APP/Contents/MacOS/LensBar"
+cp .build/release/LensControl "$APP/Contents/MacOS/LensControl"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 
 # App icon: drawn as vector at every size by Tools/MakeIcon.swift, then packed.
-ICONSET=build/LensBar.iconset
+ICONSET=build/LensControl.iconset
 rm -rf "$ICONSET"
 swift Tools/MakeIcon.swift "$ICONSET" >/dev/null
 iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/AppIcon.icns"

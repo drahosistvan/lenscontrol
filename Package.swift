@@ -7,7 +7,7 @@ let homebrewInclude: [SwiftSetting] = [.unsafeFlags(["-Xcc", "-I/opt/homebrew/in
 let homebrewLib: [LinkerSetting] = [.unsafeFlags(["-L/opt/homebrew/lib"])]
 
 let package = Package(
-    name: "LensBar",
+    name: "LensControl",
     platforms: [.macOS(.v14)],
     targets: [
         .systemLibrary(
@@ -15,16 +15,16 @@ let package = Package(
             path: "Sources/CGPhoto2"
         ),
         .executableTarget(
-            name: "LensBar",
+            name: "LensControl",
             dependencies: ["CGPhoto2"],
-            path: "Sources/LensBar",
+            path: "Sources/LensControl",
             swiftSettings: homebrewInclude,
             linkerSettings: homebrewLib
         ),
         .testTarget(
-            name: "LensBarTests",
-            dependencies: ["LensBar"],
-            path: "Tests/LensBarTests",
+            name: "LensControlTests",
+            dependencies: ["LensControl"],
+            path: "Tests/LensControlTests",
             swiftSettings: homebrewInclude,
             linkerSettings: homebrewLib
         ),

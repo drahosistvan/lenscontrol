@@ -1,5 +1,5 @@
 import XCTest
-@testable import LensBar
+@testable import LensControl
 
 /// Pure logic — no camera needed.
 final class CameraModelTests: XCTestCase {

@@ -1,6 +1,6 @@
 import SwiftUI
 
-// Building blocks for the panel, following the LensBar design's component notes:
+// Building blocks for the panel, following the LensControl design's component notes:
 // 84 pt right-aligned label column, 10 pt gutter, rows ≥ 24 pt and 6 pt apart,
 // 16 pt between sections, pop-ups capped at ~170 pt.
 

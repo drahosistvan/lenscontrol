@@ -1,5 +1,5 @@
 #!/usr/bin/env swift
-// Renders the LensBar app icon from the Claude Design spec (option 1l) at every
+// Renders the LensControl app icon from the Claude Design spec (option 1l) at every
 // .iconset size with CoreGraphics, so each size is drawn as vector rather than
 // downsampled. Usage:  swift Tools/MakeIcon.swift <output.iconset>
 //

@@ -1,4 +1,4 @@
-# LensBar
+# LensControl
 
 A small macOS menu-bar app to remote-control a Nikon Z5 II over USB while it
 is used as a webcam (HDMI → Elgato Cam Link 4K). It talks to the camera through
@@ -39,7 +39,7 @@ control above as a named preset (⌘1–⌘9 apply the first nine). Applying
 writes only the values that differ, in one gphoto2 session (~1 s); anything
 the camera rejects (a read-only property in the current mode, an aperture the
 mounted lens doesn't have) is listed in the warning banner and the rest still
-applies. Presets live in `~/Library/Application Support/LensBar/presets.json`.
+applies. Presets live in `~/Library/Application Support/LensControl/presets.json`.
 
 **Window mode** — the ⧉ button in the popover footer (⌘O) opens the same
 panel as a floating window with a "Keep on top" checkbox, for parking it next
@@ -56,9 +56,9 @@ to a call. Both views share state and refresh together.
 ## Build & install
 
 ```sh
-./build.sh                                  # → build/LensBar.app
-cp -R build/LensBar.app /Applications/
-open /Applications/LensBar.app
+./build.sh                                  # → build/LensControl.app
+cp -R build/LensControl.app /Applications/
+open /Applications/LensControl.app
 ```
 
 `swift test` runs the parser unit tests and — if a camera is connected — an
@@ -66,7 +66,7 @@ integration test that nudges movie ISO one step and puts it back.
 
 ## How it works
 
-`Sources/LensBar/GPhoto2.swift` is an actor around the libgphoto2 C API
+`Sources/LensControl/GPhoto2.swift` is an actor around the libgphoto2 C API
 (`Sources/CGPhoto2` is the module map for the Homebrew headers). It opens one
 PTP session on first use and keeps it while the popover or window is on
 screen — libgphoto2 isn't thread-safe, so the actor runs on its own serial

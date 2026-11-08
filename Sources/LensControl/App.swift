@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct LensBarApp: App {
+struct LensControlApp: App {
     static let windowID = "main"
 
     @NSApplicationDelegateAdaptor private var delegate: AppDelegate
@@ -17,7 +17,7 @@ struct LensBarApp: App {
         .menuBarExtraStyle(.window)
 
         // Same panel as a floating window, for keeping it beside a call all session.
-        Window("LensBar", id: Self.windowID) {
+        Window("LensControl", id: Self.windowID) {
             ContentView(presentation: .window)
                 .environment(delegate.model)
         }

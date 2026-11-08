@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The LensBar panel. The popover is one 330 pt column; the window is 680 pt
+/// The LensControl panel. The popover is one 330 pt column; the window is 680 pt
 /// with two columns (Exposure + White balance · Preview + Focus + Presets).
 struct ContentView: View {
     enum Presentation {
@@ -195,7 +195,7 @@ struct ContentView: View {
             Text("Turn the camera on and check the cable.")
                 .font(.system(size: 12))
                 .foregroundStyle(.secondary)
-            Text("LensBar also checks every 2 s.")
+            Text("LensControl also checks every 2 s.")
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
             Button("Try Again") { Task { await model.refresh() } }
@@ -317,7 +317,7 @@ struct ContentView: View {
             }
             Spacer()
             if !isWindow {
-                Button("Open as Window") { openWindow(id: LensBarApp.windowID) }
+                Button("Open as Window") { openWindow(id: LensControlApp.windowID) }
                     .keyboardShortcut("o")
                     .help("Open as Window (⌘O)")
             }
@@ -327,7 +327,7 @@ struct ContentView: View {
             if !isWindow {
                 Button("Quit") { NSApplication.shared.terminate(nil) }
                     .keyboardShortcut("q")
-                    .help("Quit LensBar (⌘Q)")
+                    .help("Quit LensControl (⌘Q)")
             }
         }
         .buttonStyle(.borderless)

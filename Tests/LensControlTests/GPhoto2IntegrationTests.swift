@@ -1,5 +1,5 @@
 import XCTest
-@testable import LensBar
+@testable import LensControl
 
 /// Talks to the real camera through libgphoto2. Skipped when no camera is
 /// connected, so the suite stays green on a machine without hardware.

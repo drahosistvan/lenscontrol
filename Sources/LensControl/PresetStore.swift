@@ -9,7 +9,7 @@ struct Preset: Codable, Identifiable, Equatable, Sendable {
     var values: [String: String]
 }
 
-/// Presets persisted as JSON in ~/Library/Application Support/LensBar/presets.json.
+/// Presets persisted as JSON in ~/Library/Application Support/LensControl/presets.json.
 @MainActor @Observable
 final class PresetStore {
     private(set) var presets: [Preset] = []
@@ -18,13 +18,17 @@ final class PresetStore {
 
     nonisolated static var defaultFileURL: URL {
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        let url = support.appendingPathComponent("LensBar/presets.json")
-        // Presets saved while the app was still called "Camera Settings" come along.
-        let legacy = support.appendingPathComponent("CameraSettings/presets.json")
+        let url = support.appendingPathComponent("LensControl/presets.json")
+        // Presets saved under the app's earlier names ("LensBar", "Camera Settings") come along.
         let fm = FileManager.default
-        if !fm.fileExists(atPath: url.path), fm.fileExists(atPath: legacy.path) {
-            try? fm.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-            try? fm.moveItem(at: legacy, to: url)
+        if !fm.fileExists(atPath: url.path) {
+            for folder in ["LensBar", "CameraSettings"] {
+                let legacy = support.appendingPathComponent("\(folder)/presets.json")
+                guard fm.fileExists(atPath: legacy.path) else { continue }
+                try? fm.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+                try? fm.moveItem(at: legacy, to: url)
+                break
+            }
         }
         return url
     }

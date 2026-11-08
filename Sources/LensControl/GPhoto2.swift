@@ -62,7 +62,7 @@ enum GPhotoError: LocalizedError, Equatable {
 /// libgphoto2 is not thread-safe, so every call runs on this actor's own serial
 /// queue — never on the shared cooperative pool, which blocking USB I/O would stall.
 actor GPhoto2 {
-    private let queue = DispatchSerialQueue(label: "hu.isti.lensbar.gphoto2", qos: .userInitiated)
+    private let queue = DispatchSerialQueue(label: "hu.isti.lenscontrol.gphoto2", qos: .userInitiated)
     nonisolated var unownedExecutor: UnownedSerialExecutor { queue.asUnownedSerialExecutor() }
 
     private var context: OpaquePointer?

@@ -1,5 +1,5 @@
 import XCTest
-@testable import LensBar
+@testable import LensControl
 
 @MainActor
 final class PresetStoreTests: XCTestCase {
@@ -7,7 +7,7 @@ final class PresetStoreTests: XCTestCase {
 
     override func setUp() {
         fileURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("LensBarTests-\(UUID().uuidString)/presets.json")
+            .appendingPathComponent("LensControlTests-\(UUID().uuidString)/presets.json")
     }
 
     override func tearDown() {

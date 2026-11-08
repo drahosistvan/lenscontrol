@@ -46,7 +46,7 @@ enum MenuBarIcon {
             return true
         }
         image.isTemplate = true
-        image.accessibilityDescription = "LensBar"
+        image.accessibilityDescription = "LensControl"
         return image
     }
 }
