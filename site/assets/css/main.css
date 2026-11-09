@@ -1,0 +1,512 @@
+/* LensControl landing page. One accent colour; everything else is grey. */
+
+:root {
+  --bg: #fbfbfd;
+  --surface: #ffffff;
+  --text: #1d1d1f;
+  --text-2: #6e6e73;
+  --line: rgba(0, 0, 0, 0.1);
+  --accent: #0066cc;
+  --accent-text: #ffffff;
+  --accent-soft: rgba(0, 102, 204, 0.1);
+
+  /* placeholder screenshots */
+  --ph-surface: #ffffff;
+  --ph-chrome: #f2f2f4;
+  --ph-bar: #e3e3e8;
+  --ph-strong: #cfcfd6;
+  --ph-media: #ececf0;
+  --ph-dot: #d6d6dc;
+
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 28px rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161618;
+    --surface: #1f1f22;
+    --text: #f5f5f7;
+    --text-2: #a1a1a6;
+    --line: rgba(255, 255, 255, 0.12);
+    --accent: #3d9bff;
+    --accent-text: #0b1220;
+    --accent-soft: rgba(61, 155, 255, 0.16);
+
+    --ph-surface: #232327;
+    --ph-chrome: #2b2b30;
+    --ph-bar: #34343a;
+    --ph-strong: #46464e;
+    --ph-media: #2c2c31;
+    --ph-dot: #48484f;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 32px rgba(0, 0, 0, 0.45);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+h1, h2, h3 { margin: 0; line-height: 1.15; }
+p { margin: 0; }
+
+code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  padding: 0.1em 0.35em;
+  border-radius: 5px;
+  background: var(--ph-media);
+  white-space: nowrap;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Top bar */
+
+.topbar {
+  border-bottom: 1px solid var(--line);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 52px;
+}
+
+.wordmark {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 16px;
+}
+.wordmark:hover { text-decoration: none; }
+
+.topnav { display: flex; gap: 20px; font-size: 14px; }
+.topnav a { color: var(--text-2); }
+.topnav a:hover { color: var(--text); text-decoration: none; }
+
+/* Hero */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 72px;
+  padding-bottom: 56px;
+}
+
+.app-icon {
+  width: 112px;
+  height: 112px;
+  margin-bottom: 24px;
+  border-radius: 25px;
+}
+
+/* Remove this slot's styles once the real icon is set in hugo.toml. */
+.app-icon-slot {
+  display: grid;
+  place-items: center;
+  border: 1.5px dashed var(--ph-strong);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.hero h1 {
+  font-size: clamp(40px, 8vw, 60px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.tagline {
+  max-width: 22em;
+  margin-top: 14px;
+  font-size: clamp(21px, 3.2vw, 26px);
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.lede {
+  max-width: 34em;
+  margin-top: 16px;
+  color: var(--text-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.fineprint {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+/* Buttons */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+}
+.button:hover { text-decoration: none; border-color: var(--ph-strong); }
+
+.button-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+.button-primary:hover { border-color: var(--accent); filter: brightness(1.08); }
+
+.button-quiet {
+  background: transparent;
+  color: var(--text-2);
+}
+
+/* Screenshots: flex-grow equals each image's aspect ratio, so both share one
+   height on wide screens. */
+
+.screens {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+  padding-bottom: 32px;
+}
+
+.shot { margin: 0; min-width: 0; }
+.shot-window { flex: 1.4167 1 0; }   /* 680 / 480 */
+.shot-popover { flex: 0.5 1 0; }     /* 330 / 660 */
+
+.shot svg, .shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.shot figcaption {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-2);
+  text-align: center;
+}
+
+.ph-frame { fill: var(--ph-surface); stroke: var(--line); }
+.ph-chrome { fill: var(--ph-chrome); }
+.ph-line { stroke: var(--line); stroke-width: 1; }
+.ph-dot { fill: var(--ph-dot); }
+.ph-bar { fill: var(--ph-bar); }
+.ph-strong { fill: var(--ph-strong); }
+.ph-pill { fill: none; stroke: var(--ph-strong); }
+.ph-accent { stroke: var(--accent); fill: var(--accent-soft); }
+.ph-media { fill: var(--ph-media); }
+.ph-text { fill: var(--text-2); font-family: var(--font); font-size: 13px; }
+
+@media (max-width: 720px) {
+  .screens { flex-direction: column; align-items: center; gap: 36px; }
+  .shot-window, .shot-popover { flex: none; width: 100%; }
+  .shot-popover { max-width: 280px; }
+}
+
+/* Sections */
+
+.section {
+  padding-top: 72px;
+  padding-bottom: 24px;
+  scroll-margin-top: 8px;
+}
+
+.section h2 {
+  font-size: clamp(28px, 4.5vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.section-intro {
+  margin-top: 10px;
+  max-width: 36em;
+  color: var(--text-2);
+}
+
+/* How it works: camera on the left, two lanes to the right. Narrow screens
+   put the camera on top and run the lanes downwards. */
+
+.flow {
+  display: flex;
+  align-items: stretch;
+  margin-top: 36px;
+}
+
+.node {
+  flex: none;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.node small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-2);
+}
+
+.node-camera {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 128px;
+}
+
+.node-accent {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.lanes {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(64px, 1fr) auto minmax(64px, 1fr) auto;
+  align-items: center;
+  row-gap: 20px;
+}
+
+.lane { display: contents; }
+
+.wire {
+  position: relative;
+  height: 1px;
+  background: var(--ph-strong);
+  margin-right: 6px;
+}
+
+.wire::after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  top: -3.5px;
+  width: 7px;
+  height: 7px;
+  border-top: 1.5px solid var(--ph-strong);
+  border-right: 1.5px solid var(--ph-strong);
+  transform: rotate(45deg);
+}
+
+.wire > span {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .flow { flex-direction: column; align-items: center; }
+  .node-camera { min-width: 0; width: 100%; max-width: 320px; }
+  .lanes {
+    width: 100%;
+    max-width: 420px;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    column-gap: 12px;
+  }
+  .lane { display: flex; flex-direction: column; align-items: center; }
+  .lane .node { width: 100%; }
+  .wire {
+    width: 1px;
+    height: 44px;
+    margin: 0 0 6px;
+  }
+  .wire::after {
+    right: auto;
+    left: -3.5px;
+    top: auto;
+    bottom: -1px;
+    transform: rotate(135deg);
+  }
+  .wire > span {
+    left: 10px;
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+/* Features */
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 28px 32px;
+  margin-top: 56px;
+}
+
+.feature h3 {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.feature p {
+  margin-top: 6px;
+  font-size: 15px;
+  color: var(--text-2);
+}
+
+/* Platforms */
+
+.platforms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.platform {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.platform-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.platform h3 { font-size: 20px; font-weight: 600; }
+
+.platform p {
+  flex: 1;
+  font-size: 15px;
+  color: var(--text-2);
+}
+
+.platform .button { align-self: flex-start; margin-top: 6px; }
+
+.platform.is-soon h3 { color: var(--text-2); }
+
+.badge {
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.requirements {
+  margin-top: 36px;
+}
+
+.requirements h3 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.requirements ul {
+  margin: 10px 0 0;
+  padding-left: 1.1em;
+  font-size: 15px;
+  color: var(--text-2);
+}
+
+.requirements li + li { margin-top: 4px; }
+
+/* Footer */
+
+.footer {
+  margin-top: 72px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 28px;
+  padding-bottom: 40px;
+}
+
+.footer .muted { font-size: 12px; }
+
+.notfound { padding-top: 96px; padding-bottom: 96px; }
+.notfound h1 { font-size: 36px; }
+.notfound p { margin-top: 12px; color: var(--text-2); }
+
+@media (max-width: 480px) {
+  body { font-size: 16px; }
+  .wrap { padding: 0 16px; }
+  .topnav { gap: 14px; }
+  .hero { padding-top: 48px; padding-bottom: 40px; }
+  .section { padding-top: 56px; }
+  .actions .button { flex: 1 1 100%; }
+}
+
+@media (max-width: 359px) {
+  .topnav a:first-child { display: none; }
+}

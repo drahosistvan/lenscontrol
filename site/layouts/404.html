@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="{{ site.Language.Locale | default "en" }}">
+<head>
+  {{- partial "head.html" (dict "title" (printf "Not found · %s" site.Title) "page" .) }}
+</head>
+<body>
+  <main class="wrap notfound">
+    <h1>Not found</h1>
+    <p>That page doesn't exist. <a href="{{ site.Home.RelPermalink }}">Back to {{ site.Title }}</a>.</p>
+  </main>
+</body>
+</html>
